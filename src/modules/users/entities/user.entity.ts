@@ -27,7 +27,6 @@ export class User {
     @Column({ default: true })
     isActive: boolean;
     @Column({ length: 256 })
-    // @IsNotEmpty()
     password: string;
 
     @CreateDateColumn()
