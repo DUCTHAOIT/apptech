@@ -1,11 +1,22 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/passport/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
+// import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
+
+
+  //Passport guard
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Req() req) {
+    return req.user;
+  }
 
   // CREATE
   @Post()
