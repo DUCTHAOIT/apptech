@@ -24,10 +24,17 @@ export class User {
     })
     role: 'USER' | 'ADMIN';
 
-    @Column({ default: true })
+    @Column({ default: false })
     isActive: boolean;
+
     @Column({ length: 256 })
     password: string;
+
+    @Column({ unique: true })
+    codeId: string;
+
+    @Column({ unique: true })
+    codeExpired: Date;
 
     @CreateDateColumn()
     createdAt: Date;

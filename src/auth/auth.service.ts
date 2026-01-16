@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../modules/users/users.service';
-//import { UsersService } from '../users/users.service'; 
+import { createUserDto } from './dto/create-user.dto';
+
 
 
 @Injectable()
@@ -33,4 +34,10 @@ export class AuthService {
       // user,
     };
   }
+
+  handleRegister = async (registerDto: createUserDto) => {
+    return await this.usersService.handleRegister(registerDto);
+  }
+
+
 }

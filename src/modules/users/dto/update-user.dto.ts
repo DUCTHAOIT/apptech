@@ -5,9 +5,6 @@ import {
 
 export class UpdateUserDto {
     @IsNotEmpty()
-    name: string;
-
-    @IsNotEmpty()
     password: string;
 
     @IsNotEmpty()

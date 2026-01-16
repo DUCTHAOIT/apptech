@@ -1,5 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/passport/jwt-auth.guard';
+import { LocalAuthGuard } from 'src/auth/passport/local-auth.guard';
+import { Public } from 'src/decorator/customize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -19,6 +21,8 @@ export class UsersController {
   }
 
   // CREATE
+  @Public()
+  @UseGuards(LocalAuthGuard)
   @Post()
   create(@Body() dto: CreateUserDto) {
     return this.usersService.create(dto);

@@ -1,3 +1,4 @@
+import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -11,6 +12,7 @@ import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
+
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -26,6 +28,22 @@ import { UsersModule } from './modules/users/users.module';
     }),
     UsersModule,
     AuthModule,
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',      // SMTP server bạn dùng (Mailgun, Gmail, SendGrid SMTP…)
+        port: 587,                     // port mail server
+        secure: false,                 // true nếu dùng SSL/TLS (phụ thuộc server)
+        auth: {
+          user: process.env.EMAIL_USER, // username SMTP
+          pass: process.env.EMAIL_PASS, // mật khẩu SMTP
+
+        },
+      },
+      defaults: {
+        from: '"No Reply" <ducthao.>', // địa chỉ gửi mặc định
+      },
+
+    }),
 
   ],
   controllers: [AppController],
