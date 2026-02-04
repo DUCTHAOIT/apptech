@@ -1,21 +1,30 @@
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import 'dotenv/config';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const port = configService.get('PORT');
+  app.setGlobalPrefix('api/v1', { exclude: [''] });
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,            // chỉ cho phép field trong DTO
-      forbidNonWhitelisted: true, // gửi field lạ → 400
-      transform: true,            // tự convert kiểu dữ liệu
-    }),
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true
+  }));
+
+  //config cors
+  app.enableCors(
+    {
+      "origin": true,
+      "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+      "preflightContinue": false,
+      credentials: true
+    }
   );
 
-  await app.listen(process.env.PORT ?? 3000);
-  console.log('Server is running at PORT ', process.env.PORT);
+  await app.listen(port);
+  console.log('Server is running at port ', port);
 }
-
 bootstrap();

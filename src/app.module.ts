@@ -1,21 +1,23 @@
+
 import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/passport/jwt-auth.guard';
+import { TransformInterceptor } from './core/transform.interceptor';
+
 import { User } from './modules/users/entities/user.entity';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
-
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    UsersModule,
+    AuthModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
@@ -24,35 +26,52 @@ import { UsersModule } from './modules/users/users.module';
       password: '',
       database: 'taho',
       entities: [User],
-      synchronize: false,
+      synchronize: true,
     }),
-    UsersModule,
-    AuthModule,
-    MailerModule.forRoot({
-      transport: {
-        host: 'smtp.gmail.com',      // SMTP server bạn dùng (Mailgun, Gmail, SendGrid SMTP…)
-        port: 587,                     // port mail server
-        secure: false,                 // true nếu dùng SSL/TLS (phụ thuộc server)
-        auth: {
-          user: process.env.EMAIL_USER, // username SMTP
-          pass: process.env.EMAIL_PASS, // mật khẩu SMTP
-
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: "smtp.gmail.com",
+          port: 465,
+          secure: true,
+          // ignoreTLS: true,
+          // secure: false,
+          auth: {
+            user: configService.get<string>('EMAIL_USER'),
+            pass: configService.get<string>('EMAIL_PASS'),
+          },
         },
-      },
-      defaults: {
-        from: '"No Reply" <ducthao.>', // địa chỉ gửi mặc định
-      },
+        defaults: {
+          from: '"No Reply" <no-reply@localhost>',
+        },
+        // preview: true,
+        template: {
+          dir: process.cwd() + '/src/mail/templates/',
+          adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
+          options: {
+            strict: true,
+          },
+        },
+      }),
+      inject: [ConfigService],
 
     }),
-
+    ConfigModule.forRoot({
+      isGlobal: true,
+    })
   ],
   controllers: [AppController],
   providers: [
+    AppService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    AppService
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    }
   ],
 })
 export class AppModule { }

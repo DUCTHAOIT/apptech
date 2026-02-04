@@ -1,43 +1,58 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../modules/users/users.service';
-import { createUserDto } from './dto/create-user.dto';
-
-
+import { comparePasswordHelper } from 'src/helpers/util';
+import { UsersService } from 'src/modules/users/users.service';
+import { ChangePasswordAuthDto, CodeAuthDto, CreateAuthDto } from './dto/create-auth.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
+    private jwtService: JwtService
   ) { }
 
-  async validateUser(email: string, password: string) {
-    const user = await this.usersService.findByEmail(email);
+
+  async validateUser(username: string, pass: string): Promise<any> {
+    const user = await this.usersService.findByEmail(username);
     if (!user) return null;
 
-    if (user.password !== password) return null;
-
-    const { password: _, ...result } = user;
-    return result;
+    const isValidPassword = await comparePasswordHelper(pass, user.password);
+    if (!isValidPassword) return null;
+    return user;
   }
 
   async login(user: any) {
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    };
-
+    console.log('JWT_SECRET_KEY =', process.env.JWT_SECRET_KEY);
+    // console.log(user) /
+    const payload = { email: user.email, sub: user.userId };
+    console.log(payload);
     return {
+      user: {
+        email: user.email,
+        userId: user.userId,
+      },
       access_token: this.jwtService.sign(payload),
-      // user,
     };
   }
 
-  handleRegister = async (registerDto: createUserDto) => {
+  handleRegister = async (registerDto: CreateAuthDto) => {
     return await this.usersService.handleRegister(registerDto);
   }
 
+  checkCode = async (data: CodeAuthDto) => {
+    return await this.usersService.handleActive(data);
+  }
+
+  retryActive = async (data: string) => {
+    return await this.usersService.retryActive(data);
+  }
+
+  retryPassword = async (data: string) => {
+    return await this.usersService.retryPassword(data);
+  }
+
+  changePassword = async (data: ChangePasswordAuthDto) => {
+    return await this.usersService.changePassword(data);
+  }
 
 }

@@ -1,14 +1,21 @@
-import {
-    IsEmail,
-    IsNotEmpty
-} from 'class-validator';
+import { IsOptional } from "class-validator";
+
 
 export class UpdateUserDto {
-    @IsNotEmpty()
+
+    @IsOptional()
+    name: string;
+
+    @IsOptional()
     password: string;
 
-    @IsNotEmpty()
-    @IsEmail({}, { message: 'Email không đúng định dạng' })
-    email: string;
+    @IsOptional()
+    phone: string;
 
+    @IsOptional()
+    address: string;
+
+    @IsOptional()
+    userId: number;
 }
+

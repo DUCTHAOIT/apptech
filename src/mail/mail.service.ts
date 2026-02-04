@@ -5,13 +5,29 @@ import { Injectable } from '@nestjs/common';
 export class MailService {
     constructor(private readonly mailerService: MailerService) { }
 
-    async sendHello() {
+    async sendRegister(email: string, codeId: string) {
         await this.mailerService.sendMail({
-            to: 'ducthao.hp93@gmail.com',
-            subject: 'Test Hello',
-            text: 'Hello World',
+            to: email,
+            subject: 'Comfirm Register',
+            template: 'register',
+            context: {
+                name: email,
+                codeId: codeId,
+            },
         });
-
-        return 'Email sent';
     }
+
+    async sendResetPassword(email: string, codeId: string) {
+        await this.mailerService.sendMail({
+            to: email,
+            subject: 'Reset password',
+            template: 'resetPassword',
+            context: {
+                name: email,
+                codeId: codeId,
+            },
+        });
+    }
+
+
 }

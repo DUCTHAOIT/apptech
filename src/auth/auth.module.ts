@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from 'src/modules/users/users.module';
@@ -10,21 +10,22 @@ import { LocalStrategy } from './passport/local.strategy';
 
 @Module({
   imports: [
-    ConfigModule,
-    PassportModule,
     UsersModule,
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET_KEY,
-      signOptions: { expiresIn: '100d' },
+    PassportModule,
+    ConfigModule,
+
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET_KEY'),
+        signOptions: {
+          expiresIn: '100d'
+        },
+      }),
     }),
   ],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    LocalStrategy
-  ],
   controllers: [AuthController],
-  exports: [AuthService],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
 })
 export class AuthModule { }

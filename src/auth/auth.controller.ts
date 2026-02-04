@@ -1,28 +1,70 @@
-
-
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
-import { Public } from 'src/decorator/customize';
+import { MailerService } from '@nestjs-modules/mailer';
+import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Public, ResponseMessage } from 'src/decorator/customize';
 import { AuthService } from './auth.service';
-import { createUserDto } from './dto/create-user.dto';
+import { ChangePasswordAuthDto, CodeAuthDto, CreateAuthDto } from './dto/create-auth.dto';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly mailerService: MailerService
+  ) { }
 
-
-  // @UseGuards(LocalAuthGuard)
-  @Post('login')
+  @Post("login")
   @Public()
   @UseGuards(LocalAuthGuard)
-  async handLogin(@Request() req) {
+  @ResponseMessage("Fetch login")
+  handleLogin(@Request() req) {
     return this.authService.login(req.user);
   }
 
-  @Public()
   @Post('register')
-  register(@Body() registerDto: createUserDto) {
+  @Public()
+  register(@Body() registerDto: CreateAuthDto) {
     return this.authService.handleRegister(registerDto);
   }
 
+  @Post('check-code')
+  @Public()
+  checkCode(@Body() registerDto: CodeAuthDto) {
+    return this.authService.checkCode(registerDto);
+  }
+
+  @Post('retry-active')
+  @Public()
+  retryActive(@Body("email") email: string) {
+    return this.authService.retryActive(email);
+  }
+
+  @Post('retry-password')
+  @Public()
+  retryPassword(@Body("email") email: string) {
+    return this.authService.retryPassword(email);
+  }
+
+
+
+  @Post('change-password')
+  @Public()
+  changePassword(@Body() data: ChangePasswordAuthDto) {
+    return this.authService.changePassword(data);
+  }
+  @Get('mail')
+  @Public()
+  testMail() {
+    this.mailerService
+      .sendMail({
+        to: 'ads.hoidanit@gmail.com', // list of receivers
+        subject: 'Testing Nest MailerModule ✔', // Subject line
+        text: 'welcome', // plaintext body
+        template: "register",
+        context: {
+          name: "Eric",
+          activationCode: 123456789
+        }
+      })
+    return "ok";
+  }
 }

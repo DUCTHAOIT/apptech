@@ -9,7 +9,7 @@ import {
 @Entity('users')
 export class User {
     @PrimaryGeneratedColumn()
-    id: number;
+    userId: number;
 
     @Column({ length: 100 })
     name: string;
@@ -30,10 +30,16 @@ export class User {
     @Column({ length: 256 })
     password: string;
 
-    @Column({ unique: true })
+    @Column({ length: 256, nullable: true })
+    phone: string;
+
+    @Column({ length: 256, nullable: true })
+    address: string;
+
+    @Column({ nullable: true })
     codeId: string;
 
-    @Column({ unique: true })
+    @Column({ type: 'datetime', nullable: true })
     codeExpired: Date;
 
     @CreateDateColumn()

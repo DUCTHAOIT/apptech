@@ -1,58 +1,42 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/passport/jwt-auth.guard';
-import { LocalAuthGuard } from 'src/auth/passport/local-auth.guard';
-import { Public } from 'src/decorator/customize';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-
-// import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-
-  //Passport guard
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Req() req) {
-    return req.user;
-  }
-
-  // CREATE
-  @Public()
-  @UseGuards(LocalAuthGuard)
   @Post()
-  create(@Body() dto: CreateUserDto) {
-    return this.usersService.create(dto);
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
   }
 
-
-  // READ ALL
   @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
-
-  // READ ONE
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  // UPDATE
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() dto: UpdateUserDto,
+  async findAll(
+    // @Query() query: string,
+    @Query("current") current: string,
+    @Query("pageSize") pageSize: string,
   ) {
-    return this.usersService.update(+id, dto);
+    return this.usersService.findAll(+current, +pageSize);
+    // return this.usersService.findAll(query, +current, +pageSize);
   }
 
-  // DELETE
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Get(':userId')
+  findOne(@Param('userId') userId: number) {
+    return this.usersService.findOne(userId);
+  }
+
+  @Patch(':userId')
+  update(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() updateUserDto: UpdateUserDto
+  ) {
+    return this.usersService.update(userId, updateUserDto);
+  }
+
+  @Delete(':userId')
+  remove(@Param('userId') userId: number) {
+    return this.usersService.remove(userId);
   }
 }

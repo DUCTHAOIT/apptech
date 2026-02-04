@@ -6,9 +6,9 @@ import { MailService } from './mail.service';
 export class MailController {
     constructor(private readonly mailService: MailService) { }
 
-    @Get('hello')
+    @Get('sendMailRegister')
     @Public()
-    sendHelloMail() {
-        return this.mailService.sendHello();
+    sendRegister(email, codeId) {
+        return this.mailService.sendRegister(email, codeId);
     }
 }
