@@ -56,14 +56,14 @@ export class UsersService {
     return savedUser;
   }
 
-  async findAll(current = 1, pageSize = 10) {
+  async findAll() {
     const [results, total] = await this.userRepo.findAndCount({
-      skip: (current - 1) * pageSize,
-      take: pageSize,
       select: [
         'userId',
         'name',
         'email',
+        'address',
+        'phone',
         'role',
         'createdAt',
         'updatedAt',
@@ -73,12 +73,6 @@ export class UsersService {
     });
 
     return {
-      meta: {
-        current,
-        pageSize,
-        pages: Math.ceil(total / pageSize),
-        total,
-      },
       results,
     };
   }

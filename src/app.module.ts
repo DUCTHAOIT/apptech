@@ -5,17 +5,24 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AffiliateModule } from './affiliate/affiliate.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/passport/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
-
+import { CategoryModule } from './modules/category/category.module';
+import { Category } from './modules/category/entities/product-category.entity';
+import { Packet } from './modules/packets/entities/packet.entity';
+import { PacketModule } from './modules/packets/packet.module';
+import { Product } from './modules/products/entities/product.entity';
+import { ProductModule } from './modules/products/products.module';
 import { User } from './modules/users/entities/user.entity';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
+    AffiliateModule,
     UsersModule,
     AuthModule,
     TypeOrmModule.forRoot({
@@ -25,7 +32,7 @@ import { UsersModule } from './modules/users/users.module';
       username: 'root',
       password: '',
       database: 'taho',
-      entities: [User],
+      entities: [User, Packet, Category, Product],
       synchronize: true,
     }),
     MailerModule.forRootAsync({
@@ -59,7 +66,10 @@ import { UsersModule } from './modules/users/users.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-    })
+    }),
+    PacketModule,
+    CategoryModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [

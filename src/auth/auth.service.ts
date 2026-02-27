@@ -24,12 +24,13 @@ export class AuthService {
   async login(user: any) {
     console.log('JWT_SECRET_KEY =', process.env.JWT_SECRET_KEY);
     // console.log(user) /
-    const payload = { email: user.email, sub: user.userId };
+    const payload = { email: user.email, sub: user.userId, role: user.role };
     console.log(payload);
     return {
       user: {
         email: user.email,
         userId: user.userId,
+        role: user.role,
       },
       access_token: this.jwtService.sign(payload),
     };

@@ -30,6 +30,9 @@ export class User {
     @Column({ length: 256 })
     password: string;
 
+    @Column()
+    referralId: number;
+
     @Column({ length: 256, nullable: true })
     phone: string;
 

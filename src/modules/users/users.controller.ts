@@ -18,7 +18,7 @@ export class UsersController {
     @Query("current") current: string,
     @Query("pageSize") pageSize: string,
   ) {
-    return this.usersService.findAll(+current, +pageSize);
+    return this.usersService.findAll();
     // return this.usersService.findAll(query, +current, +pageSize);
   }
 

@@ -1,21 +1,49 @@
-import { IsOptional } from "class-validator";
-
+import {
+    IsBoolean,
+    IsDateString,
+    IsEmail,
+    IsIn,
+    IsOptional,
+    IsString,
+    MinLength,
+} from 'class-validator';
 
 export class UpdateUserDto {
 
     @IsOptional()
-    name: string;
+    @IsString()
+    name?: string;
 
     @IsOptional()
-    password: string;
+    @IsEmail()
+    email?: string;
 
     @IsOptional()
-    phone: string;
+    @IsIn(['USER', 'ADMIN'])
+    role?: 'USER' | 'ADMIN';
 
     @IsOptional()
-    address: string;
+    @IsBoolean()
+    isActive?: boolean;
 
     @IsOptional()
-    userId: number;
+    @IsString()
+    @MinLength(6)
+    password?: string;
+
+    @IsOptional()
+    @IsString()
+    phone?: string;
+
+    @IsOptional()
+    @IsString()
+    address?: string;
+
+    @IsOptional()
+    @IsString()
+    codeId?: string;
+
+    @IsOptional()
+    @IsDateString()
+    codeExpired?: Date;
 }
-
